@@ -1,32 +1,53 @@
-<?php
+<?php session_start();
 $db = mysqli_connect("localhost","root","","users");
     class user
     {
         private $id = "";
-        public $login = "kiki";
-        public $email = "zeofijz";
-        public $firstname = "ozrin";
-        public $lastname = "oizefje";
+        public $login = "";
+        public $password = "";
+        public $email = "";
+        public $firstname = "";
+        public $lastname = "";
 
-        public function register($login, $email, $firstname, $lastname)
+        public function register($login, $password, $email, $firstname, $lastname)
         {
-            $query = mysqli_query($db,"INSERT INTO utilisateurs(login,email,firstname,lastname) VALUES('$login','$email','$firstname','$lastname')");
-            $result = mysqli_fetch_all($query);
+	    $reqtab="SELECT *FROM users WHERE login='$login'";
+        $querytab=mysqli_query($db, $reqtab);
+        $num=mysqli_num_rows($querytab);
 
-            return($this->$login = $result[0][1]);
-            return($this->$email = $result[0][2]);
-            return($this->$firstname = $result[0][3]);
-            return($this->$lastname = $result[0][4]);
-
+		if($num == 0)
+		{ 
+			$hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);	
+			$requser="INSERT INTO users VALUES(NULL, '$login', '$hash', '$email','$firstname','$lastname')";
+			$queryuser=mysqli_query($db, $requser);
+			return array($login, $password, $email, $firstname, $lastname);
+		}
+		else
+		{
+			return "login déjà existant";
+		}
         }
 
         public function connect($login,$password)
         {
-            $requete = mysqli_query($db, "SELECT login,password FROM utilisateurs");
-            $resultat = mysqli_fecth_all($requete);
+            $query="SELECT * from users WHERE login='$login'";
+            $result= mysqli_query($db, $query);
+            $row = mysqli_fetch_array($result);
+		
+		if(password_verify($password,$row['password'])) 
+		{
+			
+			session_start();
+			$_SESSION['login']=$login;
+			$_SESSION['password']=$password;
+			return $_SESSION['login']. " vous êtes bien connecté";
 
-            return($this->$login = $resultat[0][1]);
-            return($this->$password = $resultat[0][2]);
+		}
+		else
+		{
+			return "Login ou mot de passe incorrect";	
+		}
+
         }
 
         public function disconnect()
@@ -80,7 +101,7 @@ $db = mysqli_connect("localhost","root","","users");
 
         public function refresh()
         {
-            
+
         }        
     }
 
