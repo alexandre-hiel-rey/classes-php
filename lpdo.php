@@ -127,7 +127,6 @@
         }
 
     $user = new lpdo;
-
     $user->connect("localhost","root","","users");
     //$user->close();
     //$user->execute("SELECT * FROM utilisateurs");
