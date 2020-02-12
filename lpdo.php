@@ -2,6 +2,7 @@
     class lpdo
         {
             private $connexion = null;
+            private $db = null;
             private $lastQuery = null;
             private $lastResult = null;
             
